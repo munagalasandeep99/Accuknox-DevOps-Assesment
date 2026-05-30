@@ -1,0 +1,77 @@
+apiVersion: security.kubearmor.com/v1
+kind: KubeArmorPolicy
+metadata:
+  name: wisecow-zero-trust-policy
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: wisecow
+
+  # ── Process Restrictions ──────────────────────────────────────────
+  # Only allow wisecow.sh, cowsay, fortune, bash, sh, nc to run
+  process:
+    matchPaths:
+      - path: /app/wisecow.sh
+        action: Allow
+      - path: /usr/games/cowsay
+        action: Allow
+      - path: /usr/games/fortune
+        action: Allow
+      - path: /bin/bash
+        action: Allow
+      - path: /bin/sh
+        action: Allow
+      - path: /bin/nc
+        action: Allow
+      - path: /bin/cat
+        action: Allow
+      - path: /usr/bin/mkfifo
+        action: Allow
+      - path: /bin/rm
+        action: Allow
+      - path: /bin/sleep
+        action: Allow
+    action: Block   # Block everything else
+
+  # ── File Restrictions ─────────────────────────────────────────────
+  # Block access to sensitive files
+  file:
+    matchPaths:
+      - path: /etc/shadow
+        action: Block
+      - path: /etc/passwd
+        action: Audit
+
+    matchDirectories:
+      - dir: /root/
+        action: Block
+      - dir: /home/
+        action: Block
+      - dir: /proc/
+        readOnly: true
+        action: Audit
+
+  # ── Network Restrictions ──────────────────────────────────────────
+  # Only allow TCP on port 4499 (wisecow port)
+  network:
+    matchProtocols:
+      - protocol: tcp
+        action: Allow
+      - protocol: udp
+        action: Block
+      - protocol: icmp
+        action: Block
+
+  # ── Capabilities Restrictions ─────────────────────────────────────
+  # Block dangerous Linux capabilities
+  capabilities:
+    matchCapabilities:
+      - capability: net_raw
+        action: Block
+      - capability: sys_ptrace
+        action: Block
+      - capability: sys_admin
+        action: Block
+
+  action: Block
