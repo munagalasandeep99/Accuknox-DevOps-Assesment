@@ -16,16 +16,23 @@ spec:
     spec:
       containers:
       - name: wisecow
-        image: wisecow:v1
-        # CRITICAL: Tell K8s not to look for this image on Docker Hub
-        imagePullPolicy: Never 
+        image: sandeepreddymunagala/wisecow:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 4499
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: wisecow-service
+  namespace: default
 spec:
   type: ClusterIP
   selector:
@@ -34,4 +41,3 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 4499
-        # Exposes the app outside the cluster on this port
