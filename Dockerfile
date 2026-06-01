@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Add cowsay and fortune to PATH
 ENV PATH="/usr/games:${PATH}"
 
 WORKDIR /app

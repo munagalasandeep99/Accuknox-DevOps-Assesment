@@ -9,9 +9,6 @@ env:
   IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/wisecow
 
 jobs:
-  # ─────────────────────────────────────────────
-  # JOB 1: Build and Push Docker image to Docker Hub
-  # ─────────────────────────────────────────────
   build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
@@ -44,10 +41,6 @@ jobs:
         run: |
           echo " Image pushed: ${{ env.IMAGE_NAME }}:${{ github.run_number }}"
 
-  # ─────────────────────────────────────────────
-  # JOB 2: Update image tag in deployment YAML
-  # Same pattern as your Jenkins pipeline
-  # ─────────────────────────────────────────────
   update-manifest:
     name: Update Deployment Manifest
     runs-on: ubuntu-latest
@@ -80,9 +73,6 @@ jobs:
           git commit -m "Update deployment image to version ${{ github.run_number }}"
           git push origin main
 
-  # ─────────────────────────────────────────────
-  # JOB 3: Deploy to Minikube via self-hosted runner
-  # ─────────────────────────────────────────────
   deploy:
     name: Deploy to Minikube
     runs-on: self-hosted
@@ -92,7 +82,7 @@ jobs:
       - name: Checkout updated repository
         uses: actions/checkout@v4
         with:
-          ref: main   # pull latest commit (with updated image tag)
+          ref: main   
 
       - name: Apply updated deployment manifest
         run: |
